@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Structural Variant Tools Comparison</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-image: url('karyot.png'); /* Replace with actual image URL */
+            background-size: cover;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: #333;
+        }
+        form {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        fieldset {
+            margin-bottom: 15px;
+        }
+        legend {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .summary {
+            margin-top: 20px;
+            display: flex;
+        }
+		#comparison-matrix thead tr th {
+			white-space: normal; /* Allow text wrapping */
+			word-wrap: break-word; /* Ensure long words wrap */
+			overflow: visible; /* Prevent truncation */
+			max-width: 400px; /* Prevent it from being too wide */
+		}
+        .category-bar {
+            display: flex;
+            flex-direction: column;
+            width: 20px;
+			margin-right: 10px;
+			margin-top: 48px;
+        }
+        .category-bar div {
+            flex: 1;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            background-color: rgba(255, 255, 255, 0.9); /* Add white background for better readability */
+        }
+        th {
+            background-color: rgba(242, 242, 242, 0.9);
+        }
+        th:first-child {
+            width: 10%;
+        }
+		table tr:first-child {
+			height: 10%;
+		}
+        .heatmap-cell {
+            width: 100%;
+            height: 100%;
+        }
+        .legend {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .legend span {
+            display: flex;
+            align-items: center;
+        }
+        .legend span div {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Compare Structural Variant Tools</h1>
+    <form id="tool-form">
+        <div class="form-group">
+            <label for="tool-name">Tool Name (Required):</label>
+            <input type="text" id="tool-name" name="tool-name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="tool-version">Tool Version:</label>
+            <input type="text" id="tool-version" name="tool-version">
+        </div>
+
+        <fieldset>
+            <legend>Availability</legend>
+            <div class="form-group">
+                <label><input type="radio" name="availability" value="Public" required> Public</label><br>
+                <label><input type="radio" name="availability" value="Commercial" required> Commercial</label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Informatics Need</legend>
+            <div class="form-group">
+                <label><input type="checkbox" name="informatics-need" value="Command Line Interface"> Command Line Interface</label><br>
+                <label><input type="checkbox" name="informatics-need" value="Continued Support"> Continued Support</label><br>
+                <label><input type="checkbox" name="informatics-need" value="hg38 Support"> hg38 Support</label><br>
+                <label><input type="checkbox" name="informatics-need" value="hg19 Support"> hg19 Support</label><br>
+                <label><input type="checkbox" name="informatics-need" value="Standard Input/Output Formats"> Standard Input/Output Formats</label><br>
+                <label><input type="checkbox" name="informatics-need" value="Web-based UI"> Web-based UI</label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Genomic Context</legend>
+            <div class="form-group">
+                <label><input type="checkbox" name="genomic-context" value="Genes and Transcripts"> Genes and Transcripts</label><br>
+                <label><input type="checkbox" name="genomic-context" value="Splicing Information"> Splicing Information</label><br>
+                <label><input type="checkbox" name="genomic-context" value="Low Complexity Information"> Low Complexity Information</label><br>
+                <label><input type="checkbox" name="genomic-context" value="Genomic Domains"> Genomic Domains</label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Database and Guidelines</legend>
+            <div class="form-group">
+                <label><input type="checkbox" name="database-guidelines" value="Oncogenicity Guidelines"> Oncogenicity Guidelines</label><br>
+                <label><input type="checkbox" name="database-guidelines" value="ASCO/AMP/CAP Guidelines"> ASCO/AMP/CAP Guidelines</label><br>
+                <label><input type="checkbox" name="database-guidelines" value="ACMG Guidelines"> ACMG Guidelines</label><br>
+                <label><input type="checkbox" name="database-guidelines" value="ClinVar"> ClinVar</label><br>
+                <label><input type="checkbox" name="database-guidelines" value="gnomAD"> gnomAD</label><br>
+                <label><input type="checkbox" name="database-guidelines" value="COSMIC"> COSMIC</label><br>
+                <label><input type="checkbox" name="database-guidelines" value="cBioPortal"> cBioPortal</label><br>
+                <label><input type="checkbox" name="database-guidelines" value="CKB"> CKB</label><br>
+                <label><input type="checkbox" name="database-guidelines" value="HGMD"> HGMD</label><br>
+                <label><input type="checkbox" name="database-guidelines" value="OncoKB"> OncoKB</label><br>
+                <label><input type="checkbox" name="database-guidelines" value="CIVic"> CIVic</label><br>
+                <label><input type="checkbox" name="database-guidelines" value="HPO Terms"> HPO Terms</label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Severity and Pathogenicity</legend>
+            <div class="form-group">
+                <label><input type="checkbox" name="severity" value="Variant Co-occurrence"> Variant Co-occurrence</label><br>
+                <label><input type="checkbox" name="severity" value="Severity Score"> Severity Score</label><br>
+                <label><input type="checkbox" name="severity" value="Curated Evidence"> Curated Evidence</label><br>
+                <label><input type="checkbox" name="severity" value="MSI/TMB/HRD Integration"> MSI/TMB/HRD Integration</label><br>
+                <label><input type="checkbox" name="severity" value="Specific Gene Splice Events"> Specific Gene Splice Events (e.g., EGFRVIII)</label><br>
+                <label><input type="checkbox" name="severity" value="Oncogenic/Resistance"> Oncogenic/Resistance</label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Treatment and Guidance</legend>
+            <div class="form-group">
+                <label><input type="checkbox" name="treatment" value="Clinical Trial Information"> Clinical Trial Information</label><br>
+                <label><input type="checkbox" name="treatment" value="Treatment Suggestions"> Treatment Suggestions</label>
+            </div>
+        </fieldset>
+
+        <button type="button" onclick="submitData()">Submit</button>
+    </form>
+
+    <div class="legend">
+        <span><div style="background-color: #f0cd8c;"></div>Informatics Need</span>
+        <span><div style="background-color: #cce5ff;"></div>Genomic Context</span>
+        <span><div style="background-color: #77f7ee;"></div>Database and Guidelines</span>
+        <span><div style="background-color: #fff5cc;"></div>Severity and Pathogenicity</span>
+        <span><div style="background-color: #e6ccff;"></div>Treatment and Guidance</span>
+    </div>
+	
+	<div class="download-container">
+		<button id="download-image" onclick="downloadTableAsImage()">Download Table as Image</button>
+	</div>
+
+    <div class="summary">
+        <div class="category-bar">
+            <div style="background-color: #f0cd8c;" title="Informatics Need"></div>
+            <div style="background-color: #cce5ff;" title="Genomic Context"></div>
+            <div style="background-color: #77f7ee;" title="Database and Guidelines"></div>
+            <div style="background-color: #fff5cc;" title="Severity and Pathogenicity"></div>
+            <div style="background-color: #e6ccff;" title="Treatment and Guidance"></div>
+        </div>
+        <table id="comparison-matrix">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Tool 1</th>
+                    <th>Tool 2</th>
+                    <th>Tool 3</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        const toolsData = [];
+		window.onload = loadData;
+		function sortTable(columnIndex) {
+			const table = document.querySelector("#comparison-matrix");
+			const tbody = table.querySelector("tbody");
+			const rows = Array.from(tbody.querySelectorAll("tr"));
+
+			// Check current sorting order
+			const isAscending = table.dataset.sortOrder !== "asc";
+			table.dataset.sortOrder = isAscending ? "asc" : "desc";
+
+			rows.sort((rowA, rowB) => {
+				const cellA = rowA.children[columnIndex];
+				const cellB = rowB.children[columnIndex];
+
+				if (!cellA || !cellB) return 0;
+
+				const colorA = window.getComputedStyle(cellA).backgroundColor;
+				const colorB = window.getComputedStyle(cellB).backgroundColor;
+
+				// Convert RGB color to a sortable value
+				const valueA = getColorValue(colorA);
+				const valueB = getColorValue(colorB);
+
+				return isAscending ? valueA - valueB : valueB - valueA;
+			});
+
+			rows.forEach(row => tbody.appendChild(row));
+		}
+
+		// Helper function to assign values to colors
+		function getColorValue(color) {
+			const colorMap = {
+				"rgb(179, 229, 201)": 1, // Green (#b3e5c9) -> Selected
+				"rgb(255, 205, 210)": 2  // Red (#ffcdd2) -> Not Selected
+			};
+
+			return colorMap[color] || 3; // Default to lowest priority if unknown color
+		}
+		
+		function loadData() {
+			const savedData = localStorage.getItem("toolsData");
+			if (savedData) {
+				toolsData.length = 0; // Clear existing data
+				toolsData.push(...JSON.parse(savedData)); // Restore data
+				updateComparisonMatrix();
+			}
+		}
+		
+		function saveData() {
+			localStorage.setItem("toolsData", JSON.stringify(toolsData));
+		}
+
+        function submitData() {
+			const toolName = document.getElementById("tool-name").value;
+			const toolVersion = document.getElementById("tool-version").value;
+			const availability = document.querySelector('input[name="availability"]:checked')?.value;
+
+			if (!toolName || !availability) {
+				alert("Tool Name and Availability are required!");
+				return;
+			}
+
+			const categories = [
+				"informatics-need",
+				"genomic-context",
+				"database-guidelines",
+				"severity",
+				"treatment"
+			];
+
+			const toolData = {
+				name: toolName,
+				version: toolVersion || "N/A",
+				availability: availability
+			};
+
+			categories.forEach(category => {
+				const selectedOptions = Array.from(document.querySelectorAll(`input[name="${category}"]:checked`))
+					.map(option => option.value);
+				toolData[category] = selectedOptions;
+			});
+
+			const existingToolIndex = toolsData.findIndex(tool => tool.name === toolName && tool.version === toolVersion);
+			if (existingToolIndex !== -1) {
+				toolsData[existingToolIndex] = toolData;
+			} else {
+				toolsData.push(toolData);
+			}
+
+			saveData(); // Save data after submitting
+			updateComparisonMatrix();
+		}
+
+        function updateComparisonMatrix() {
+			const table = document.querySelector("#comparison-matrix");
+			const tableBody = table.querySelector("tbody");
+			const tableHeader = table.querySelector("thead tr");
+
+			tableBody.innerHTML = "";
+			tableHeader.innerHTML = "<th onclick='sortTable(0)'>Feature</th>";
+
+			toolsData.forEach((tool, index) => {
+				const headerCell = document.createElement("th");
+				headerCell.textContent = `${tool.name} (${tool.version}) [${tool.availability}]`;
+				headerCell.setAttribute("onclick", `sortTable(${index + 1})`);
+				headerCell.style.cursor = "pointer"; // Indicate it's clickable
+				tableHeader.appendChild(headerCell);
+			});
+
+			const categories = {
+				"informatics-need": ["Command Line Interface", "Continued Support", "hg38 Support", "hg19 Support", "Standard Input/Output Formats", "Web-based UI"],
+				"genomic-context": ["Genes and Transcripts", "Splicing Information", "Low Complexity Information", "Genomic Domains"],
+				"database-guidelines": ["Oncogenicity Guidelines", "ASCO/AMP/CAP Guidelines", "ACMG Guidelines", "ClinVar", "gnomAD", "COSMIC", "cBioPortal", "CKB", "HGMD", "OncoKB", "CIVic", "HPO Terms"],
+				"severity": ["Variant Co-occurrence", "Severity Score", "Curated Evidence", "MSI/TMB/HRD Integration", "Specific Gene Splice Events", "Oncogenic/Resistance"],
+				"treatment": ["Clinical Trial Information", "Treatment Suggestions"]
+			};
+
+			for (const [category, features] of Object.entries(categories)) {
+				features.forEach(feature => {
+					const row = document.createElement("tr");
+					row.appendChild(document.createElement("td")).textContent = feature;
+
+					toolsData.forEach(tool => {
+						const cell = document.createElement("td");
+						const isSelected = tool[category] && tool[category].includes(feature);
+						cell.style.backgroundColor = isSelected ? "#b3e5c9" : "#ffcdd2";
+						cell.classList.add("heatmap-cell");
+						row.appendChild(cell);
+					});
+
+					tableBody.appendChild(row);
+				});
+			}
+		}
+
+        function downloadTableAsImage() {
+            const container = document.createElement("div"); 
+			const legend = document.querySelector(".legend");
+			const table = document.querySelector(".summary");
+
+			// Clone elements to prevent modifying the actual page
+			const clonedLegend = legend.cloneNode(true);
+			const clonedTable = table.cloneNode(true);
+
+			// Create a wrapper to include both legend and table
+			container.appendChild(clonedLegend);
+			container.appendChild(clonedTable);
+			document.body.appendChild(container);
+
+			const scaleFactor = 4; // Increase scale factor for higher resolution
+
+			html2canvas(container, {
+				scale: scaleFactor, 
+				useCORS: true,      
+				backgroundColor: "white"
+			}).then(canvas => {
+				const link = document.createElement("a");
+				link.download = "comparison_matrix_high_res.png";
+				link.href = canvas.toDataURL("image/png", 1.0);
+				link.click();
+				document.body.removeChild(container); // Cleanup after capturing
+			});
+        }
+    </script>
+</body>
+</html>
